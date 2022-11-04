@@ -162,6 +162,18 @@ int get_dist(Case** map,int i,int j,int direction){
 
 //--------------------------
 
+int get_type(Case** map, int x, int y){
+    return map[y][x].type;
+}
+
+//--------------------------
+
+void set_type(Case** map, int x, int y, uint8_t type){
+    map[y][x].type=type;
+}
+
+//--------------------------
+
 void print_map(Player player, Case** map){
     printf("\e[1;1H\e[2J");
 
@@ -217,17 +229,6 @@ void refresh(Player player, Case** map) {
     printf("\n\n");
 }
 
-//--------------------------
-
-int get_type(Case** map, int x, int y){
-    return map[y][x].type;
-}
-
-//--------------------------
-
-void set_type(Case** map, int x, int y, uint8_t type){
-    map[y][x].type=type;
-}
 //--------------------------
 
 void aff_victoire(Player player){
