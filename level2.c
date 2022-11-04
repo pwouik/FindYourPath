@@ -206,8 +206,35 @@ void refresh(Player player, Case** map) {
     printf("\n\n");
     print_dist(player, map);
     printf("\n\n");
-    printf("Energie restante : %d \n Distance parcourue : %d", player.stamina, player.dist);
+    printf("Energie restante : %d \nDistance parcourue : %d", player.stamina, player.dist);
     printf("\n\n");
+}
+
+//--------------------------
+
+int check_tree (int x, int y, Case** map){
+    if (map[y][x].type == 3) return TRUE;
+    else return FALSE;
+}
+
+//--------------------------
+
+int check_bonus (int x, int y, Case** map){
+    if (map[y][x].type == 2) return TRUE;
+    else return FALSE;
+}
+
+//--------------------------
+
+int check_victory(int x, int y, Case** map){
+    if (map[y][x].type == 4) return TRUE;
+    else return FALSE;
+}
+
+//--------------------------
+
+void aff_victoire(Player player){
+    printf ("Bravo vous avez reussi ! \n Il vous reste %s%d%s energie(s) et vous avez parcouru %s%d%sm \n On vous a ajoute %s%d%s energie(s) et on vous en a retire %s%d%s \n\n", KGRN, player.stamina, KWHT, KBLU, player.dist, KWHT, KGRN, player.stamina_added, KWHT, KRED, player.stamina_removed, KWHT);
 }
 
 //--------------------------
@@ -217,7 +244,7 @@ void move(Player player, Case** map){
     char ch;
     int x, y;
     int launch = TRUE;
-    int change = FALSE;
+    int victoire = FALSE;
     while (launch == 0){
         puts("Entrer ce que vous voulez faire");
         scanf("%c", &ch);
@@ -226,32 +253,91 @@ void move(Player player, Case** map){
             y = player.y - 1;
             if (y > MAP_SIZE-9){
                 player.y = y;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(player.x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.y++;
+                }else if (check_bonus(player.x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(player.x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'x':
             y = player.y + 1;
-            if (y < MAP_SIZE){
+            if ((y < MAP_SIZE)){
                 player.y = y;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(player.x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.y--;
+                }else if (check_bonus(player.x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(player.x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'd':
             x = player.x + 1;
             if (x < MAP_SIZE){
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, player.y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.x--;
+                }else if (check_bonus(x, player.y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, player.y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'q':
             x = player.x - 1;
             if (x > MAP_SIZE-9){
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, player.y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.x++;
+                }else if (check_bonus(x, player.y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, player.y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'a':
@@ -260,8 +346,24 @@ void move(Player player, Case** map){
             if ((x > MAP_SIZE-9) && (y > MAP_SIZE-9)) {
                 player.y = y;
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.y++;
+                    player.x++;
+                }else if (check_bonus(x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'e':
@@ -270,8 +372,25 @@ void move(Player player, Case** map){
             if ((x < MAP_SIZE) && (y > MAP_SIZE-9)) {
                 player.y = y;
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.y++;
+                    player.x--;
+
+                }else if (check_bonus(x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'w':
@@ -280,8 +399,24 @@ void move(Player player, Case** map){
             if ((x > MAP_SIZE-9) && (y < MAP_SIZE)) {
                 player.y = y;
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.y--;
+                    player.x++;
+                }else if (check_bonus(x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 'c':
@@ -290,8 +425,24 @@ void move(Player player, Case** map){
             if ((x < MAP_SIZE) && (y < MAP_SIZE)) {
                 player.y = y;
                 player.x = x;
-                player.stamina--;
-                change = TRUE;
+                if (check_tree(x, y, map) == TRUE){
+                    player.stamina -= 10;
+                    player.stamina_removed +=10;
+                    player.y--;
+                    player.x--;
+                }else if (check_bonus(x, y, map) == TRUE){
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else if (check_victory(x, y, map) == TRUE){
+                    launch = FALSE;
+                    victoire = TRUE;
+                }else{
+                    player.stamina--;
+                    player.stamina_removed ++;
+                }
+            }
+            if (player.stamina <= 0){
+                launch = FALSE;
             }
             break;
         case 's':
@@ -300,12 +451,16 @@ void move(Player player, Case** map){
         default:
             break;
         }
-        if (change == TRUE){
-            refresh(player, map);
+        refresh(player, map);
+        if (launch == FALSE){
+            printf ("%sLa partie est finie \n \n %s", KRED, KWHT);
+            if (victoire == TRUE){
+                aff_victoire(player);
+            }
+            exit(0);
         }
     }
 }
-
 //---------------------[ Level ]---------------------//
 
 int main() {
@@ -313,10 +468,7 @@ int main() {
     Case** map=init_map();
     Player player=init_player();
 
-    print_map(player, map);
-    printf("\n\n");
-    print_dist(player, map);
-    printf("\n\n");
+    refresh(player, map);
 
     move(player, map);
 }
