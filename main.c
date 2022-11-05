@@ -20,16 +20,17 @@
 #define KGRN  "\x1B[32m"
 #define KYEL  "\x1B[33m"
 #define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
 #define KWHT  "\x1B[37m"
 
-//---------------------[ Case types ]---------------------//
+//Case types
+
 #define VICTORY 4
 #define TREE 3
 #define HEAL 2
 #define GROUND 1
 
 //---------------------[ Struct ]---------------------//
-
 
 typedef struct {
     uint8_t type;
@@ -48,7 +49,7 @@ typedef struct {
     int dist;
 } Player;
 
-//---------------------[ Init ]---------------------//
+//---------------------[ Init / Set ]---------------------//
 
 Case** init_map(){
 
@@ -97,7 +98,13 @@ Player init_player(){
     return player;
 }
 
-//---------------------[ Function ]---------------------//
+//--------------------------
+
+void set_type(Case** map, int x, int y, uint8_t type){
+    map[y][x].type=type;
+}
+
+//---------------------[ Function Get ]---------------------//
 
 int get_dist(Case** map,int i,int j,int direction){
     switch(direction){
@@ -166,13 +173,7 @@ int get_type(Case** map, int x, int y){
     return map[y][x].type;
 }
 
-//--------------------------
-
-void set_type(Case** map, int x, int y, uint8_t type){
-    map[y][x].type=type;
-}
-
-//--------------------------
+//---------------------[ Function Print ]---------------------//
 
 void print_map(Player player, Case** map){
     printf("\e[1;1H\e[2J");
@@ -186,7 +187,7 @@ void print_map(Player player, Case** map){
                     printf("%sH ",KYEL);
                     break;
                 case 3:
-                    printf("%sX ",KRED);
+                    printf("%sX ",KMAG);
                     break;
                 case 2:
                     printf("%s+ ",KGRN);
@@ -199,8 +200,8 @@ void print_map(Player player, Case** map){
         printf("\n");
     }
     printf(KBLU);
-    printf("\033[%d;%dH*", player.y+1, player.x*2+1);
-    printf("\033[%dH", MAP_SIZE);
+    printf("\e[%d;%dH*", player.y+1, player.x*2+1);
+    printf("\e[%dH", MAP_SIZE);
 }
 
 //--------------------------
@@ -211,10 +212,10 @@ void print_dist(Player player, Case** map) {
     int y = player.y;
 
     printf(KWHT);
-    printf("%d %d %d\n%d %s* ", get_dist(map,x,y,7), get_dist(map,x,y,0), get_dist(map,x,y,1), get_dist(map,x,y,6), KBLU);
+    printf("%d %d %d     a z e \n%d %s* ", get_dist(map,x,y,7), get_dist(map,x,y,0), get_dist(map,x,y,1), get_dist(map,x,y,6), KBLU);
     
     printf(KWHT);
-    printf("%d \n%d %d %d\n", get_dist(map,x,y,2), get_dist(map,x,y,5), get_dist(map,x,y,4), get_dist(map,x,y,3));
+    printf("%d     q - d \n%d %d %d     w x c \n", get_dist(map,x,y,2), get_dist(map,x,y,5), get_dist(map,x,y,4), get_dist(map,x,y,3));
 }
 
 //--------------------------
@@ -224,28 +225,59 @@ void refresh(Player player, Case** map) {
     print_map(player, map);
     printf("\n\n");
     print_dist(player, map);
-    printf("\n\n");
-    printf("Energie restante : %d \nDistance parcourue : %d", player.stamina, player.dist);
-    printf("\n\n");
+    printf("\n");
+
+    printf("\e[4mEnergie restante :\e[0m");
+
+    if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
+    else if (player.stamina<=6) printf(KYEL);
+    else printf(KGRN);
+    printf(" %d%s \n", player.stamina, KWHT);
+
+    printf("\e[4mDistance parcourue :\e[0m %s%d%s \n", KBLU, player.dist, KWHT);
+}
+
+//---------------------[ Function End-Game ]---------------------//
+
+void print_win(Player player){
+
+    system("setterm -bold on");
+    printf ("Victoire ! Vous avez reussi ! \n\n");
+    system("setterm -bold off");
+
+    printf("   %sEnergie restante : ", KWHT);
+    if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
+    else if (player.stamina<=6) printf(KYEL);
+    else printf(KGRN);
+    printf("%d%s \n", player.stamina, KWHT);
+
+    printf("   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n\n", KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
 }
 
 //--------------------------
 
-void aff_victoire(Player player){
-    printf ("Bravo vous avez reussi ! \n Il vous reste %s%d%s energie(s) et vous avez parcouru %s%d%sm \n On vous a ajoute %s%d%s energie(s) et on vous en a retire %s%d%s \n\n", KGRN, player.stamina, KWHT, KBLU, player.dist, KWHT, KGRN, player.stamina_added, KWHT, KRED, player.stamina_removed, KWHT);
+void print_lose(Player player){
+
+    system("setterm -bold on");
+    printf ("Défaite, vous n'avez plus assez d'energie... \n\n");
+    system("setterm -bold off");
+
+    printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n\n", KWHT, KRED, KWHT, KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
 }
 
-//--------------------------
+//---------------------[ Function Move ]---------------------//
 
 void move(Player player, Case** map){
-    // declare variable
+    //Init variable
     char ch;
     int x, y;
     int launch = TRUE;
     int victory = FALSE;
-    while (launch == 0){
-        puts("Entrer ce que vous voulez faire");
-        scanf(" %c", &ch);
+
+    while (launch == TRUE){
+        puts("Prochain déplacement :");
+        scanf("  %c", &ch);
+
         switch (ch){
         case 'z':
             x = player.x;
@@ -279,44 +311,46 @@ void move(Player player, Case** map){
             y = player.y + 1;
             x = player.x + 1;
             break;
-        case '\n':
-            continue;
         default:
-            printf("Le '%c' n'est pas reconnu. seuls : \n 'a' 'z' 'e' \n 'q'     'd' \n 'w' 'x' 'c' \n",ch);
+            printf("'%c' n'est pas une entrée valide.\n\e[2A\e[K\e[16H",ch);
             continue;
         }
         if (y >= 0 && x >= 0 && x < MAP_SIZE && y < MAP_SIZE){
-            player.x = x;
-            player.y = y;
             if (get_type(map, x, y) == TREE){
                 player.stamina -= 10;
-                player.y++;
-            }else if (get_type(map, x, y) == HEAL){
-                set_type(map,x,y,GROUND);
-                player.stamina += 10;
-                player.stamina_added+=10;
-            }else if (get_type(map, x, y) == VICTORY){
-                launch = FALSE;
-                victory = TRUE;
+                player.stamina_removed += 10;
             }else{
+                player.x = x;
+                player.y = y;
+                if (get_type(map, x, y) == HEAL){
+                    set_type(map,x,y,GROUND);
+                    player.stamina += 10;
+                    player.stamina_added+=10;
+                }else{
+                    if (get_type(map, x, y) == VICTORY){
+                        launch = FALSE;
+                        victory = TRUE;
+                    }
+                }
                 player.stamina--;
                 player.stamina_removed ++;
             }
         }
-        if (player.stamina <= 0){
-            launch = FALSE;
-        }
+        if (player.stamina <= 0) launch = FALSE;
+
+        print_map(player, map);
         refresh(player, map);
-        if (launch == FALSE){
-            printf ("%sLa partie est finie \n \n %s", KRED, KWHT);
-            if (victory == TRUE){
-                aff_victoire(player);
-            }
-            exit(0);
-        }
+
     }
+    printf("\e[1m");
+    printf ("\n\n%s - - - - La partie est finie - - - -  \n \n %s", KRED, KWHT);
+    printf("\e[0m");
+
+    if (victory == TRUE) print_win(player);
+    else print_lose(player);
 }
-//---------------------[ Level ]---------------------//
+
+//---------------------[ Level2 ]---------------------//
 
 int main() {
 
@@ -324,6 +358,5 @@ int main() {
     Player player=init_player();
 
     refresh(player, map);
-
     move(player, map);
 }
