@@ -4,7 +4,9 @@
 #include <stdlib.h>
 
 //Levels
-#include "level.h"
+#include "levels/level1.h"
+#include "levels/level2.h"
+#include "levels/level3.h"
 
 //---------------------[ FindYourPath ]---------------------//
 
@@ -23,16 +25,15 @@ int main() {
             case(1) :
                 printf("        \033[4mChoix de la difficulté :\033[0m\n\n            11 - Facile\n            12 - Moyen\n            13 - Difficile\n\n        0 - Retour au menu principal\n\n");
                 break;
-            /*case(11) :
-                
-                break;*/
-            case(12) :
-            printf("\e[1;1H\e[2J");
-                run();
+            case(11) :
+                level1();
                 break;
-            /*case(13) :
-                
-                break;*/
+            case(12) :
+                level2();
+                break;
+            case(13) :
+                level3();
+                break;
 
             //----------
 
@@ -71,7 +72,6 @@ int main() {
 
     printf("\e[1;1H\e[2J");
     printf("\n+ + + + + + + + + + + + + + + + + + + + + + +\n+                                           +\n+          FIND     YOUR     PATH           +\n+                                           +\n+ + + + + + + + + + + + + + + + + + + + + + +\n\n");
-    
     printf("\n              Fin du programme.\n\n\n\n");
 
     return 0;

@@ -200,8 +200,8 @@ void print_map(Player player, Case** map){
         printf("\n");
     }
     printf(KBLU);
-    printf("\e[%d;%dH*", player.y+1, player.x*2+1);
-    printf("\e[%dH", MAP_SIZE);
+    printf("\033[%d;%dH*", player.y+1, player.x*2+1);
+    printf("\033[%dH", MAP_SIZE);
 }
 
 //--------------------------
@@ -227,23 +227,21 @@ void refresh(Player player, Case** map) {
     print_dist(player, map);
     printf("\n");
 
-    printf("\e[4mEnergie restante :\e[0m");
+    printf("\033[4mEnergie restante :\033[0m");
 
     if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
     else if (player.stamina<=6) printf(KYEL);
     else printf(KGRN);
     printf(" %d%s \n", player.stamina, KWHT);
 
-    printf("\e[4mDistance parcourue :\e[0m %s%d%s \n", KBLU, player.dist, KWHT);
+    printf("\033[4mDistance parcourue :\033[0m %s%d%s \n", KBLU, player.dist, KWHT);
 }
 
 //---------------------[ Function End-Game ]---------------------//
 
 void print_win(Player player){
 
-    system("setterm -bold on");
-    printf ("Victoire ! Vous avez reussi ! \n\n");
-    system("setterm -bold off");
+    printf ("\033[1m Victoire ! Vous avez reussi ! \033[0m\n\n");
 
     printf("   %sEnergie restante : ", KWHT);
     if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
@@ -251,32 +249,29 @@ void print_win(Player player){
     else printf(KGRN);
     printf("%d%s \n", player.stamina, KWHT);
 
-    printf("   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n\n", KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
+    printf("   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
 }
 
 //--------------------------
 
 void print_lose(Player player){
 
-    system("setterm -bold on");
-    printf ("Défaite, vous n'avez plus assez d'energie... \n\n");
-    system("setterm -bold off");
-
-    printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n\n", KWHT, KRED, KWHT, KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
+    printf ("\033[1m Défaite, vous n'avez plus assez d'energie... \033[0m\n\n");
+    printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KWHT, KRED, KWHT, KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
 }
 
 //---------------------[ Function Move ]---------------------//
 
-void game_loop(Player player, Case** map){
+void move(Player player, Case** map){
     //Init variable
     char ch;
     int x, y;
     int launch = TRUE;
     int victory = FALSE;
 
-    while (launch == TRUE){
-        puts("Prochain déplacement :");
-        scanf("  %c", &ch);
+    while (launch == 0){
+        puts("\n\nProchain déplacement :");
+        scanf(" %c", &ch);
 
         switch (ch){
         case 'z':
@@ -311,8 +306,10 @@ void game_loop(Player player, Case** map){
             y = player.y + 1;
             x = player.x + 1;
             break;
+        case '\n':
+            continue;
         default:
-            printf("'%c' n'est pas une entrée valide.\n\e[2A\e[K\e[16H",ch);
+            printf("'%c' n'est pas une entrée valide.",ch);
             continue;
         }
         if (y >= 0 && x >= 0 && x < MAP_SIZE && y < MAP_SIZE){
@@ -322,41 +319,47 @@ void game_loop(Player player, Case** map){
             }else{
                 player.x = x;
                 player.y = y;
-                if (get_type(map, x, y) == HEAL){
+                if (get_type(map, x, y) == TREE){
+                    player.stamina -= 10;
+                    player.y++;
+                }else if (get_type(map, x, y) == HEAL){
                     set_type(map,x,y,GROUND);
                     player.stamina += 10;
                     player.stamina_added+=10;
+                }else if (get_type(map, x, y) == VICTORY){
+                    player.stamina--;
+                    launch = FALSE;
+                    victory = TRUE;
                 }else{
-                    if (get_type(map, x, y) == VICTORY){
-                        launch = FALSE;
-                        victory = TRUE;
-                    }
+                    player.stamina--;
+                    player.stamina_removed ++;
                 }
-                player.stamina--;
-                player.stamina_removed ++;
             }
         }
         if (player.stamina <= 0) launch = FALSE;
 
-        print_map(player, map);
         refresh(player, map);
 
-    }
-    printf("\e[1m");
-    printf ("\n\n%s - - - - La partie est finie - - - -  \n \n %s", KRED, KWHT);
-    printf("\e[0m");
+        if (launch == FALSE){
+            print_map(player, map);
 
-    if (victory == TRUE) print_win(player);
-    else print_lose(player);
+            printf ("\n\n%s\033[1m - - - - La partie est finie - - - -  \033[0m\n \n %s", KRED, KWHT);
+
+            if (victory == TRUE) print_win(player);
+            else print_lose(player);
+
+            exit(0);
+        }
+    }
 }
 
 //---------------------[ Level2 ]---------------------//
 
-int run() {
+void level2() {
 
     Case** map=init_map();
     Player player=init_player();
 
     refresh(player, map);
-    game_loop(player, map);
+    move(player, map);
 }
