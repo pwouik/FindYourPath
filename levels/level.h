@@ -8,13 +8,9 @@
 
 //---------------------[ Define ]---------------------//
 
-//Values
-#define MAP_SIZE 8
-#define DIST_MAX 8
-#define STAMINA 12
+
 #define TRUE 0
 #define FALSE 1
-
 //Color
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
@@ -31,6 +27,11 @@
 #define GROUND 1
 
 //---------------------[ Struct ]---------------------//
+typedef struct {
+    int map_size;
+    int dist_max;
+    int stamina;
+} LevelSettings;
 
 typedef struct {
     uint8_t type;
@@ -51,15 +52,15 @@ typedef struct {
 
 //---------------------[ Init / Set ]---------------------//
 
-Case** init_map(){
+Case** init_map(LevelSettings* level){
 
     srand( time( NULL ) );
-    Case** map = (Case**)malloc(sizeof(Case*)*MAP_SIZE);
+    Case** map = (Case**)malloc(sizeof(Case*)*level->map_size);
 
-    for(int i=0;i<MAP_SIZE;i++){
-        map[i]= (Case*)malloc(sizeof(Case)*MAP_SIZE);
+    for(int i=0;i<level->map_size;i++){
+        map[i]= (Case*)malloc(sizeof(Case)*level->map_size);
 
-        for(int j=0;j<MAP_SIZE;j++){
+        for(int j=0;j<level->map_size;j++){
 
             int n=rand()%20;
             uint8_t type=0;
@@ -73,24 +74,24 @@ Case** init_map(){
             else {
                 type=GROUND;
             }
-            map[i][j]=(Case){type, rand()%DIST_MAX+1, rand()%DIST_MAX+1, rand()%DIST_MAX+1, rand()%DIST_MAX+1};
+            map[i][j]=(Case){type, rand()%level->dist_max+1, rand()%level->dist_max+1, rand()%level->dist_max+1, rand()%level->dist_max+1};
         }
     }
     map[0][0].type=1;
-    map[MAP_SIZE-1][MAP_SIZE-1].type=4;
+    map[level->map_size-1][level->map_size-1].type=4;
     
     return map;
 }
 
 //--------------------------
 
-Player init_player(){
+Player init_player(LevelSettings* level){
 
     Player player;
 
     player.x=0;
     player.y=0;
-    player.stamina=STAMINA;
+    player.stamina=level->stamina;
     player.stamina_added=0;
     player.stamina_removed=0;
     player.dist=0;
@@ -106,7 +107,7 @@ void set_type(Case** map, int x, int y, uint8_t type){
 
 //---------------------[ Function Get ]---------------------//
 
-int get_dist(Case** map,int i,int j,int direction){
+int get_dist(Case** map,LevelSettings* level,int i,int j,int direction){
     switch(direction){
         case 0:
             if(j>0){
@@ -116,35 +117,35 @@ int get_dist(Case** map,int i,int j,int direction){
             }
             break;
         case 1:
-            if(j>0 && i<MAP_SIZE-1){
+            if(j>0 && i<level->map_size-1){
                 return map[i+1][j-1].SO;
             } else {
                 return 0;
             }
             break;
         case 2:
-            if(i<MAP_SIZE-1){
+            if(i<level->map_size-1){
                 return map[i][j].E;
             } else {
                 return 0;
             }
             break;
         case 3:
-            if(j<MAP_SIZE-1 && i<MAP_SIZE-1){
+            if(j<level->map_size-1 && i<level->map_size-1){
                 return map[i][j].SE;
             } else {
                 return 0;
             }
             break;
         case 4:
-            if(j<MAP_SIZE-1){
+            if(j<level->map_size-1){
                 return map[i][j].S;
             } else {
                 return 0;
             }
             break;
         case 5:
-            if(j<MAP_SIZE-1 && i>0){
+            if(j<level->map_size-1 && i>0){
                 return map[i][j].SO;
             } else {
                 return 0;
@@ -175,11 +176,11 @@ int get_type(Case** map, int x, int y){
 
 //---------------------[ Function Print ]---------------------//
 
-void print_map(Player player, Case** map){
+void print_map(Player player, Case** map,LevelSettings* level){
     printf("\e[1;1H\e[2J");
 
-    for(int i=0;i<MAP_SIZE;i++){
-        for(int j=0;j<MAP_SIZE;j++){
+    for(int i=0;i<level->map_size;i++){
+        for(int j=0;j<level->map_size;j++){
 
             switch(get_type(map, j, i)){
 
@@ -201,30 +202,30 @@ void print_map(Player player, Case** map){
     }
     printf(KBLU);
     printf("\033[%d;%dH*", player.y+1, player.x*2+1);
-    printf("\033[%dH", MAP_SIZE);
+    printf("\033[%dH", level->map_size);
 }
 
 //--------------------------
 
-void print_dist(Player player, Case** map) {
+void print_dist(Player player, Case** map, LevelSettings* level) {
 
     int x = player.x;
     int y = player.y;
 
     printf(KWHT);
-    printf("%d %d %d     a z e \n%d %s* ", get_dist(map,x,y,7), get_dist(map,x,y,0), get_dist(map,x,y,1), get_dist(map,x,y,6), KBLU);
+    printf("%d %d %d     a z e \n%d %s* ", get_dist(map,level,x,y,7), get_dist(map,level,x,y,0), get_dist(map,level,x,y,1), get_dist(map,level,x,y,6), KBLU);
     
     printf(KWHT);
-    printf("%d     q - d \n%d %d %d     w x c \n", get_dist(map,x,y,2), get_dist(map,x,y,5), get_dist(map,x,y,4), get_dist(map,x,y,3));
+    printf("%d     q - d \n%d %d %d     w x c \n", get_dist(map,level,x,y,2), get_dist(map,level,x,y,5), get_dist(map,level,x,y,4), get_dist(map,level,x,y,3));
 }
 
 //--------------------------
 
-void refresh(Player player, Case** map) {
+void refresh(Player player, Case** map, LevelSettings* level) {
 
-    print_map(player, map);
+    print_map(player, map,level);
     printf("\n\n");
-    print_dist(player, map);
+    print_dist(player, map,level);
     printf("\n");
 
     printf("\033[4mEnergie restante :\033[0m");
@@ -262,7 +263,7 @@ void print_lose(Player player){
 
 //---------------------[ Function Move ]---------------------//
 
-void move(Player player, Case** map){
+void move(Player player, Case** map,LevelSettings* level){
     //Init variable
     char ch;
     int x, y;
@@ -312,7 +313,7 @@ void move(Player player, Case** map){
             printf("'%c' n'est pas une entrée valide.",ch);
             continue;
         }
-        if (y >= 0 && x >= 0 && x < MAP_SIZE && y < MAP_SIZE){
+        if (y >= 0 && x >= 0 && x < level->map_size && y < level->map_size){
             if (get_type(map, x, y) == TREE){
                 player.stamina -= 10;
                 player.stamina_removed += 10;
@@ -338,10 +339,10 @@ void move(Player player, Case** map){
         }
         if (player.stamina <= 0) launch = FALSE;
 
-        refresh(player, map);
+        refresh(player, map,level);
 
         if (launch == FALSE){
-            print_map(player, map);
+            print_map(player, map,level);
 
             printf ("\n\n%s\033[1m - - - - La partie est finie - - - -  \033[0m\n \n %s", KRED, KWHT);
 
@@ -353,13 +354,13 @@ void move(Player player, Case** map){
     }
 }
 
-//---------------------[ Level2 ]---------------------//
+//---------------------[ Level1 ]---------------------//
 
-void level2() {
+void level(LevelSettings level) {
 
-    Case** map=init_map();
-    Player player=init_player();
+    Case** map=init_map(&level);
+    Player player=init_player(&level);
 
-    refresh(player, map);
-    move(player, map);
+    refresh(player, map,&level);
+    move(player, map,&level);
 }

@@ -11,7 +11,7 @@ game: $(OBJ)
 	gcc -c $< -o $@
 
 clean:
-	rm game *.o
+	rm -f FindYourPath *.o
 
-run: game
-	./game
+run: FindYourPath
+	./FindYourPath
