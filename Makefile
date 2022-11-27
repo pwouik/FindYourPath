@@ -1,17 +1,17 @@
-HEAD = $(wildcard *.h)
-SRC = $(wildcard *.c)
+HEAD = $(wildcard src/*.h)
+SRC = $(wildcard src/*.c)
 OBJ = $(SRC:.c=.o)
 
-all: game
+all: FindYourPath
 
-game: $(OBJ)
+FindYourPath: $(OBJ)
 	gcc $^ -o $@
 
-%.o: %.c $(HEAD)
+$(OBJ): $(SRC) $(HEAD)
 	gcc -c $< -o $@
 
 clean:
-	rm -f FindYourPath *.o
+	rm -f FindYourPath $(OBJ)
 
 run: FindYourPath
 	./FindYourPath

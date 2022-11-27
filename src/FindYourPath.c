@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 //Levels
-#include "levels/level.h"
+#include "level.h"
 
 //---------------------[ FindYourPath ]---------------------//
 
@@ -30,7 +30,7 @@ int main() {
                 level((LevelSettings){5,5,15});
                 break;
             case(13) :
-                level((LevelSettings){5,5,15});
+                level((LevelSettings){30,5,60});
                 break;
 
             //----------

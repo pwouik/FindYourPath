@@ -8,9 +8,10 @@
 
 //---------------------[ Define ]---------------------//
 
-
+//True&False
 #define TRUE 0
 #define FALSE 1
+
 //Color
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
@@ -20,13 +21,13 @@
 #define KWHT  "\x1B[37m"
 
 //Case types
-
 #define VICTORY 4
 #define TREE 3
 #define HEAL 2
 #define GROUND 1
 
 //---------------------[ Struct ]---------------------//
+
 typedef struct {
     int map_size;
     int dist_max;
@@ -261,7 +262,9 @@ void print_lose(Player player){
     printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KWHT, KRED, KWHT, KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
 }
 
-//---------------------[ Function Move ]---------------------//
+//---------------------[ Other ]---------------------//
+
+//--------------------[ Function Move ]---------------------//
 
 void move(Player player, Case** map,LevelSettings* level){
     //Init variable
@@ -269,43 +272,51 @@ void move(Player player, Case** map,LevelSettings* level){
     int x, y;
     int launch = TRUE;
     int victory = FALSE;
+    int dist;
 
     while (launch == 0){
         puts("\n\nProchain déplacement :");
         scanf(" %c", &ch);
-
         switch (ch){
         case 'z':
             x = player.x;
             y = player.y - 1;
+            dist = get_dist(map,level,player.x,player.y,0);
             break;
         case 'x':
             x = player.x;
             y = player.y + 1;
+            dist = get_dist(map,level,player.x,player.y,4);
             break;
         case 'd':
             x = player.x + 1;
             y = player.y;
+            dist = get_dist(map,level,player.x,player.y,2);
             break;
         case 'q':
             x = player.x - 1;
             y = player.y;
+            dist = get_dist(map,level,player.x,player.y,6);
             break;
         case 'a':
             y = player.y - 1;
             x = player.x - 1;
+            dist = get_dist(map,level,player.x,player.y,7);
             break;
         case 'e':
             y = player.y - 1;
             x = player.x + 1;
+            dist = get_dist(map,level,player.x,player.y,1);
             break;
         case 'w':
             y = player.y + 1;
             x = player.x - 1;
+            dist = get_dist(map,level,player.x,player.y,5);
             break;
         case 'c':
             y = player.y + 1;
             x = player.x + 1;
+            dist = get_dist(map,level,player.x,player.y,3);
             break;
         case '\n':
             continue;
@@ -327,13 +338,16 @@ void move(Player player, Case** map,LevelSettings* level){
                     set_type(map,x,y,GROUND);
                     player.stamina += 10;
                     player.stamina_added+=10;
+                    player.dist += dist;
                 }else if (get_type(map, x, y) == VICTORY){
                     player.stamina--;
                     launch = FALSE;
                     victory = TRUE;
+                    player.dist += dist;
                 }else{
                     player.stamina--;
                     player.stamina_removed ++;
+                    player.dist += dist;
                 }
             }
         }
