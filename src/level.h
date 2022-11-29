@@ -58,6 +58,7 @@ typedef struct{
     uint8_t type;
     Player player_state;
 } History;
+
 //---------------------[ Init / Set ]---------------------//
 
 Case** init_map(LevelSettings* level){
