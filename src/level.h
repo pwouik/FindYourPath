@@ -177,7 +177,7 @@ int get_type(Case** map, int x, int y){
 
 //---------------------[ Function Print ]---------------------//
 
-void print_map(Player player, Case** map,LevelSettings* level){
+void print_map(Player* player, Case** map,LevelSettings* level){
     printf("\e[1;1H\e[2J");
 
     for(int i=0;i<level->map_size;i++){
@@ -202,16 +202,16 @@ void print_map(Player player, Case** map,LevelSettings* level){
         printf("\n");
     }
     printf(KBLU);
-    printf("\033[%d;%dH*", player.y+1, player.x*2+1);
+    printf("\033[%d;%dH*", player->y+1, player->x*2+1);
     printf("\033[%dH", level->map_size);
 }
 
 //--------------------------
 
-void print_dist(Player player, Case** map, LevelSettings* level) {
+void print_dist(Player* player, Case** map, LevelSettings* level) {
 
-    int x = player.x;
-    int y = player.y;
+    int x = player->x;
+    int y = player->y;
 
     printf(KWHT);
     printf("%d %d %d     a z e \n%d %s* ", get_dist(map,level,x,y,7), get_dist(map,level,x,y,0), get_dist(map,level,x,y,1), get_dist(map,level,x,y,6), KBLU);
@@ -222,7 +222,7 @@ void print_dist(Player player, Case** map, LevelSettings* level) {
 
 //--------------------------
 
-void refresh(Player player, Case** map, LevelSettings* level) {
+void refresh(Player* player, Case** map, LevelSettings* level) {
 
     print_map(player, map,level);
     printf("\n\n");
@@ -231,42 +231,42 @@ void refresh(Player player, Case** map, LevelSettings* level) {
 
     printf("\033[4mEnergie restante :\033[0m");
 
-    if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
-    else if (player.stamina<=6) printf(KYEL);
+    if(player->stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
+    else if (player->stamina<=6) printf(KYEL);
     else printf(KGRN);
-    printf(" %d%s \n", player.stamina, KWHT);
+    printf(" %d%s \n", player->stamina, KWHT);
 
-    printf("\033[4mDistance parcourue :\033[0m %s%d%s \n", KBLU, player.dist, KWHT);
+    printf("\033[4mDistance parcourue :\033[0m %s%d%s \n", KBLU, player->dist, KWHT);
 }
 
 //---------------------[ Function End-Game ]---------------------//
 
-void print_win(Player player){
+void print_win(Player* player){
 
     printf ("\033[1m Victoire ! Vous avez reussi ! \033[0m\n\n");
 
     printf("   %sEnergie restante : ", KWHT);
-    if(player.stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
-    else if (player.stamina<=6) printf(KYEL);
+    if(player->stamina<=3) printf(KRED); //Changement de la couleur de l'énergie restante en fonction de son nombre
+    else if (player->stamina<=6) printf(KYEL);
     else printf(KGRN);
-    printf("%d%s \n", player.stamina, KWHT);
+    printf("%d%s \n", player->stamina, KWHT);
 
-    printf("   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
+    printf("   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KBLU, player->dist, KWHT, player->stamina_added, player->stamina_removed);
 }
 
 //--------------------------
 
-void print_lose(Player player){
+void print_lose(Player* player){
 
     printf ("\033[1m Défaite, vous n'avez plus assez d'energie... \033[0m\n\n");
-    printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KWHT, KRED, KWHT, KBLU, player.dist, KWHT, player.stamina_added, player.stamina_removed);
+    printf("   %sEnergie restante : %s0%s \n   Distance parcourue : %s%d%s \n   Energie gagnée : +%d \n   Energie perdue: -%d \n\n\n", KWHT, KRED, KWHT, KBLU, player->dist, KWHT, player->stamina_added, player->stamina_removed);
 }
 
 //---------------------[ Other ]---------------------//
 
 //--------------------[ Function Move ]---------------------//
 
-void move(Player player, Case** map,LevelSettings* level){
+void move(Player* player, Case** map,LevelSettings* level){
     //Init variable
     char ch;
     int x, y;
@@ -279,44 +279,44 @@ void move(Player player, Case** map,LevelSettings* level){
         scanf(" %c", &ch);
         switch (ch){
         case 'z':
-            x = player.x;
-            y = player.y - 1;
-            dist = get_dist(map,level,player.x,player.y,0);
+            x = player->x;
+            y = player->y - 1;
+            dist = get_dist(map,level,player->x,player->y,0);
             break;
         case 'x':
-            x = player.x;
-            y = player.y + 1;
-            dist = get_dist(map,level,player.x,player.y,4);
+            x = player->x;
+            y = player->y + 1;
+            dist = get_dist(map,level,player->x,player->y,4);
             break;
         case 'd':
-            x = player.x + 1;
-            y = player.y;
-            dist = get_dist(map,level,player.x,player.y,2);
+            x = player->x + 1;
+            y = player->y;
+            dist = get_dist(map,level,player->x,player->y,2);
             break;
         case 'q':
-            x = player.x - 1;
-            y = player.y;
-            dist = get_dist(map,level,player.x,player.y,6);
+            x = player->x - 1;
+            y = player->y;
+            dist = get_dist(map,level,player->x,player->y,6);
             break;
         case 'a':
-            y = player.y - 1;
-            x = player.x - 1;
-            dist = get_dist(map,level,player.x,player.y,7);
+            y = player->y - 1;
+            x = player->x - 1;
+            dist = get_dist(map,level,player->x,player->y,7);
             break;
         case 'e':
-            y = player.y - 1;
-            x = player.x + 1;
-            dist = get_dist(map,level,player.x,player.y,1);
+            y = player->y - 1;
+            x = player->x + 1;
+            dist = get_dist(map,level,player->x,player->y,1);
             break;
         case 'w':
-            y = player.y + 1;
-            x = player.x - 1;
-            dist = get_dist(map,level,player.x,player.y,5);
+            y = player->y + 1;
+            x = player->x - 1;
+            dist = get_dist(map,level,player->x,player->y,5);
             break;
         case 'c':
-            y = player.y + 1;
-            x = player.x + 1;
-            dist = get_dist(map,level,player.x,player.y,3);
+            y = player->y + 1;
+            x = player->x + 1;
+            dist = get_dist(map,level,player->x,player->y,3);
             break;
         case '\n':
             continue;
@@ -326,32 +326,32 @@ void move(Player player, Case** map,LevelSettings* level){
         }
         if (y >= 0 && x >= 0 && x < level->map_size && y < level->map_size){
             if (get_type(map, x, y) == TREE){
-                player.stamina -= 10;
-                player.stamina_removed += 10;
+                player->stamina -= 10;
+                player->stamina_removed += 10;
             }else{
-                player.x = x;
-                player.y = y;
+                player->x = x;
+                player->y = y;
                 if (get_type(map, x, y) == TREE){
-                    player.stamina -= 10;
-                    player.y++;
+                    player->stamina -= 10;
+                    player->y++;
                 }else if (get_type(map, x, y) == HEAL){
                     set_type(map,x,y,GROUND);
-                    player.stamina += 10;
-                    player.stamina_added+=10;
-                    player.dist += dist;
+                    player->stamina += 10;
+                    player->stamina_added+=10;
+                    player->dist += dist;
                 }else if (get_type(map, x, y) == VICTORY){
-                    player.stamina--;
+                    player->stamina--;
                     launch = FALSE;
                     victory = TRUE;
-                    player.dist += dist;
+                    player->dist += dist;
                 }else{
-                    player.stamina--;
-                    player.stamina_removed ++;
-                    player.dist += dist;
+                    player->stamina--;
+                    player->stamina_removed ++;
+                    player->dist += dist;
                 }
             }
         }
-        if (player.stamina <= 0) launch = FALSE;
+        if (player->stamina <= 0) launch = FALSE;
 
         refresh(player, map,level);
 
@@ -371,10 +371,9 @@ void move(Player player, Case** map,LevelSettings* level){
 //---------------------[ Level1 ]---------------------//
 
 void level(LevelSettings level) {
-
     Case** map=init_map(&level);
     Player player=init_player(&level);
 
-    refresh(player, map,&level);
-    move(player, map,&level);
+    refresh(&player, map,&level);
+    move(&player, map,&level);
 }
