@@ -24,13 +24,13 @@ int main() {
                 printf("        \033[4mChoix de la difficulté :\033[0m\n\n            11 - Facile\n            12 - Moyen\n            13 - Difficile\n\n        0 - Retour au menu principal\n\n");
                 break;
             case(11) :
-                level((LevelSettings){5,5,15});
+                level((LevelSettings){5,4,15,1,2,7});
                 break;
             case(12) :
-                level((LevelSettings){5,5,15});
+                level((LevelSettings){8,6,11,2,1,7});
                 break;
             case(13) :
-                level((LevelSettings){30,5,60});
+                level((LevelSettings){15,9,10,7,1,8});
                 break;
 
             //----------

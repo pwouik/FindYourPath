@@ -1,6 +1,8 @@
 HEAD = $(wildcard src/*.h)
 SRC = $(wildcard src/*.c)
-OBJ = $(SRC:.c=.o)
+TEMP = $(SRC:.c=.o)
+OBJ = $(addprefix build/,$(notdir $(TEMP)))
+$(info ${OBJ})
 
 all: FindYourPath
 
@@ -11,7 +13,7 @@ $(OBJ): $(SRC) $(HEAD)
 	gcc -c $< -o $@
 
 clean:
-	rm -f FindYourPath $(OBJ)
+	rm -f FindYourPath build/*
 
 run: FindYourPath
 	./FindYourPath
