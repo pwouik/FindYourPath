@@ -247,7 +247,7 @@ void move (Case** map, LevelSettings* level, History* history, Player player, in
                 print_save ();
             }  
             //On libère l'espace mémoire de map et history et on sort          
-            free (map);
+            free_map(map,level);
             puts("Espace mémoire de la carte libéré");
             free(history);
             puts ("Espace mémoire de l'historique libéré");
@@ -262,6 +262,14 @@ void level(LevelSettings level) {
 
     //Inits
     Case** map = init_map(&level); // Initialisation de la carte
+    PathfindResult path = pathfind(map,&level);
+    while (path.size==0)
+    {
+        free_map(map,&level);
+        map = init_map(&level);
+        path = pathfind(map,&level);
+    }
+    
     Player player = init_player(&level); // Initialisation du joueur
     History* history = init_history(player, map); // Initialisation de l'historique
     int history_size = 1;

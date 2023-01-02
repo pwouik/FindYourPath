@@ -36,6 +36,13 @@ Case** init_map(LevelSettings* level){
 
 //----------------------------------
 
+void free_map(Case** map,LevelSettings* level){
+    for(int i = 0; i < level->map_size; i++)
+        free(map[i]);
+    free(map);
+}
+//----------------------------------
+
 Player init_player(LevelSettings* level){
     //Fonction permettant d'initialiser le joueur
     Player player;

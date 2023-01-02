@@ -29,6 +29,9 @@ nameArchive=tourrenc-lecerf_alexis
 #programme du make
 all:$(BIN)
 
+run:$(BIN)
+	$(BIN)
+
 $(BIN): $(OBJS)
 	mkdir -p save_finished save_load
 	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm
@@ -36,7 +39,7 @@ $(BIN): $(OBJS)
 $(OBJ)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@ -lm
 
-.PHONY: clean save restore give dox math
+.PHONY: clean save restore give dox math run
 
 save:
 	@$(CP) $(SRCS) $(HEADS) $(SAVE)

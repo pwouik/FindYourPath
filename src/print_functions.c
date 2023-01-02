@@ -150,7 +150,7 @@ void print_end_map(Player* player, Case** map, LevelSettings* level, History* hi
         for(int j=0;j<level->map_size;j++){
             if(is_it_shortest(i,j,path))
             {
-                printf("%s",KBLU);
+                printf("%s",KBBLU);
             }
             switch(get_type(map, j, i)){
 

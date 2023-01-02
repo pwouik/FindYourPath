@@ -26,6 +26,14 @@
 #define KMAG  "\x1B[35m"
 #define KWHT  "\x1B[37m"
 
+
+#define KBRED  "\x1B[41m"
+#define KBGRN  "\x1B[42m"
+#define KBYEL  "\x1B[43m"
+#define KBBLU  "\x1B[44m"
+#define KBMAG  "\x1B[45m"
+#define KBWHT  "\x1B[47m"
+
 //Case types
 #define BOUCLE 5
 #define VICTORY 4
