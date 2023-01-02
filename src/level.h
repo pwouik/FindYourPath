@@ -3,7 +3,7 @@
 
 #include "header.h"
 
-PathfindResult pathfind(Case** map,LevelSettings* level);
+PathfindResult pathfind(Case** map,LevelSettings* level,int energy);
 void move (Case** map, LevelSettings* level, History* history, Player player, int history_size, int cancel_remaining);
 void level(LevelSettings level);
 

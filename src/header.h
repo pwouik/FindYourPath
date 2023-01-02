@@ -15,8 +15,8 @@
 #include "level.h"
 
 //True&False
-#define TRUE 0
-#define FALSE 1
+#define TRUE 1
+#define FALSE 0
 
 //Color
 #define KRED  "\x1B[31m"

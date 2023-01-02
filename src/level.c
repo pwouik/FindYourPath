@@ -12,7 +12,7 @@ const int DIRECTIONS[][2] = {{ 0,-1},
 
 //----------------------------------
 
-PathfindResult pathfind(Case** map,LevelSettings* level){
+PathfindResult pathfind(Case** map,LevelSettings* level,int energy){
     unsigned int** dist_map = (unsigned int**)malloc(level->map_size*sizeof(unsigned int*));
     for(int i=0;i<level->map_size;i++){
         dist_map[i]=(unsigned int*)malloc(level->map_size*sizeof(unsigned int));
@@ -45,8 +45,13 @@ PathfindResult pathfind(Case** map,LevelSettings* level){
             int ny = y+DIRECTIONS[i][0];
             if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size && get_type(map,nx,ny) != TREE)
             {
-                int d = get_dist(map,level,y,x,i);
-                if(d!=0 && dist_map[y][x]+d<dist_map[ny][nx]){
+                int d;
+                if(energy){
+                    d=1;
+                }else{
+                    d = get_dist(map,level,y,x,i);
+                }
+                if(dist_map[y][x]+d<dist_map[ny][nx]){
                     int j=0;
                     while(j<set_size*2 && !(nx==set[j] && ny==set[j+1])){
                         j+=2;
@@ -72,9 +77,15 @@ PathfindResult pathfind(Case** map,LevelSettings* level){
             for(i=0;i<8;i++){
                 nx = x+DIRECTIONS[i][1];
                 ny = y+DIRECTIONS[i][0];
-                if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size && dist_map[ny][nx]+get_dist(map,level,ny,nx,(i+4)%8)==dist_map[y][x])
+                if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size)
                 {
-                    break;
+                    int d;
+                    if(energy){
+                        d=1;
+                    }else{
+                        d = get_dist(map,level,ny,nx,(i+4)%8);
+                    }
+                    if(dist_map[ny][nx]+d == dist_map[y][x]) break;
                 }
             }
             path.size++;
@@ -103,7 +114,7 @@ void move (Case** map, LevelSettings* level, History* history, Player player, in
     // On appelle l'affichage des différents éléménts une première fois
     refresh(&player, map, level, history, history_size, cancel_remaining, boucle); 
 
-    while (launch == 0){ // Tant que le jeu est cours de partie
+    while (launch == TRUE){ // Tant que le jeu est cours de partie
 
         // On demande à l'utilisateur d'entrer un déplacement
         puts("\n\nProchain déplacement :");
@@ -239,10 +250,8 @@ void move (Case** map, LevelSettings* level, History* history, Player player, in
 
             if ((victory == TRUE) && (saved == FALSE)){ // Si la personne a gagné et n'a pas sauvegardé, on affiche la victoire et le meilleur chemin
                 print_win(&player, map, level, history, history_size, cancel_remaining);
-                pathfind(map,level);
             }else if ((victory == FALSE) && (saved == FALSE)) {// Si la personne a perdu et n'a pas sauvegardé, on affiche la défaite et le meilleur chemin
                 print_lose(&player, map, level, history, history_size, cancel_remaining);
-                pathfind(map,level);
             }else{ // Sinon, on sauvegarde
                 print_save ();
             }  
@@ -262,12 +271,12 @@ void level(LevelSettings level) {
 
     //Inits
     Case** map = init_map(&level); // Initialisation de la carte
-    PathfindResult path = pathfind(map,&level);
+    PathfindResult path = pathfind(map,&level,FALSE);
     while (path.size==0)
     {
         free_map(map,&level);
         map = init_map(&level);
-        path = pathfind(map,&level);
+        path = pathfind(map,&level,FALSE);
     }
     
     Player player = init_player(&level); // Initialisation du joueur

@@ -145,12 +145,17 @@ int is_it_shortest(int j, int i, PathfindResult path) {
 void print_end_map(Player* player, Case** map, LevelSettings* level, History* history, int history_size) {
     // Fonction permettant d'afficher le chemin parcouru par le joueur à la fin de la partie
     printf("\e[1;1H\e[2J");
-    PathfindResult path = pathfind(map,level);
+    PathfindResult path = pathfind(map,level,FALSE);
+    PathfindResult path_energy = pathfind(map,level,TRUE);
     for(int i=0;i<level->map_size;i++){
         for(int j=0;j<level->map_size;j++){
             if(is_it_shortest(i,j,path))
             {
                 printf("%s",KBBLU);
+            }
+            else if(is_it_shortest(i,j,path_energy))
+            {
+                printf("%s",KBYEL);
             }
             switch(get_type(map, j, i)){
 
