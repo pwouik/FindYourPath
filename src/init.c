@@ -37,8 +37,10 @@ Case** init_map(LevelSettings* level){
 //----------------------------------
 
 void free_map(Case** map,LevelSettings* level){
+    // parcours le tableau pour free les sous-tableaux
     for(int i = 0; i < level->map_size; i++)
         free(map[i]);
+    // free le tableau
     free(map);
 }
 //----------------------------------
@@ -63,7 +65,7 @@ Player init_player(LevelSettings* level){
 //----------------------------------
 
 History* init_history(Player player, Case** map){
-    // FOnction pour initaliser l'historique
+    // Fonction pour initaliser l'historique
     History* history = (History*)malloc(sizeof(History)); // On alloue la mémoire
     history[0].player_state = player; // On met les informations du joueur dans le tableau
     history[0].type = 1; // On met le type de la case sur le quel le joueur est dans le tableau

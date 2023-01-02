@@ -13,23 +13,23 @@ const int DIRECTIONS[][2] = {{ 0,-1},
 //----------------------------------
 
 PathfindResult pathfind(Case** map,LevelSettings* level,int energy){
-    unsigned int** dist_map = (unsigned int**)malloc(level->map_size*sizeof(unsigned int*));
+    // Fonction de pathfinding djikstra
+    unsigned int** dist_map = (unsigned int**)malloc(level->map_size*sizeof(unsigned int*)); // tableau de distances initialise a une valeur tres haute
     for(int i=0;i<level->map_size;i++){
         dist_map[i]=(unsigned int*)malloc(level->map_size*sizeof(unsigned int));
         for(int j=0;j<level->map_size;j++){
-            dist_map[i][j]=999;
+            dist_map[i][j]=99999;
         }
-        //memset(dist_map[i],40000000u,level->map_size);
     }
-    dist_map[0][0]=0;
+    dist_map[0][0]=0; // case depart a 0
     int set_size = 1;
-    int* set =  (int*)malloc(2*set_size*sizeof(int));
+    int* set =  (int*)malloc(2*set_size*sizeof(int)); // un set(implemente avec un tableau) contenant les case a explorer
     set[0] = 0;
     set[1] = 0;
     int x,y;
     do{
         int min_i=0;
-        for(int i=2;i<2*set_size;i+=2){
+        for(int i=2;i<2*set_size;i+=2){// on trouve la case la plus proche connue
             if(dist_map[set[i+1]][set[i]]<dist_map[set[min_i+1]][set[min_i]]){
                 min_i=i;
             }
@@ -39,25 +39,25 @@ PathfindResult pathfind(Case** map,LevelSettings* level,int energy){
         set[min_i]=set[2*set_size-2];
         set[min_i+1]=set[2*set_size-1];
         set_size--;
-        set =  realloc(set,2*set_size*sizeof(int));
-        for(int i=0;i<8;i++){
+        set =  realloc(set,2*set_size*sizeof(int));// on l'enleve du tableau
+        for(int i=0;i<8;i++){// on explore les 8 case autour
             int nx = x+DIRECTIONS[i][1];
             int ny = y+DIRECTIONS[i][0];
-            if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size && get_type(map,nx,ny) != TREE)
+            if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size && get_type(map,nx,ny) != TREE)// si c'est dans la map
             {
                 int d;
-                if(energy){
+                if(energy){// on recupere la distance si on cherche le chemin le plus court par distance
                     d=1;
                 }else{
                     d = get_dist(map,level,y,x,i);
                 }
-                if(dist_map[y][x]+d<dist_map[ny][nx]){
+                if(dist_map[y][x]+d<dist_map[ny][nx]){// si c'est le trajet le plus court
+                    dist_map[ny][nx]=dist_map[y][x]+d;// on met a jour la distance minimale
                     int j=0;
                     while(j<set_size*2 && !(nx==set[j] && ny==set[j+1])){
                         j+=2;
                     }
-                    dist_map[ny][nx]=dist_map[y][x]+d;
-                    if(j==set_size*2){
+                    if(j==set_size*2){// on ajoute au set si elle n'y est pas deja
                         set_size++;
                         set =  realloc(set,2*set_size*sizeof(int));
                         set[2*set_size-2]=nx;
@@ -66,15 +66,15 @@ PathfindResult pathfind(Case** map,LevelSettings* level,int energy){
                 }
             }
         }
-    }while(set_size != 0 && !(x==level->map_size-1 && y==level->map_size-1));
-    PathfindResult path=(PathfindResult){NULL,0};
-    if(x==level->map_size-1 && y==level->map_size-1)
+    }while(set_size != 0 && !(x==level->map_size-1 && y==level->map_size-1));// on répete tant que il reste des case a explorer que l'on est pas encore arrive
+    PathfindResult path=(PathfindResult){NULL,0};// structure pour stocker le chemin trouvé
+    if(x==level->map_size-1 && y==level->map_size-1)// on retrace en sens inverse pour stocker le chemin, si on a bien trouve la fin
     {
-        while (x!=0 || y!=0)
+        while (x!=0 || y!=0)// tant que l'on n'est pas au départ
         {
             int nx,ny;
             int i;
-            for(i=0;i<8;i++){
+            for(i=0;i<8;i++){// on cherche par quelle direction on a put passer
                 nx = x+DIRECTIONS[i][1];
                 ny = y+DIRECTIONS[i][0];
                 if(nx>=0 && nx<level->map_size && ny>=0 && ny<level->map_size)
@@ -85,10 +85,10 @@ PathfindResult pathfind(Case** map,LevelSettings* level,int energy){
                     }else{
                         d = get_dist(map,level,ny,nx,(i+4)%8);
                     }
-                    if(dist_map[ny][nx]+d == dist_map[y][x]) break;
+                    if(dist_map[ny][nx]+d == dist_map[y][x]) break;// si l'écart de distance correspond a la vraie distance
                 }
             }
-            path.size++;
+            path.size++;// on ajoute la case au chemin
             path.path =  realloc(path.path,2*path.size*sizeof(int));
             path.path[2*path.size-2]=nx;
             path.path[2*path.size-1]=ny;

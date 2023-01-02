@@ -39,7 +39,7 @@ $(BIN): $(OBJS)
 $(OBJ)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@ -lm
 
-.PHONY: clean save restore give dox math run
+.PHONY: clean save restore give dox math run all
 
 save:
 	@$(CP) $(SRCS) $(HEADS) $(SAVE)
@@ -58,7 +58,3 @@ clean:
 	$(RM) $(BINDIR)/* || echo Rien à supprimer dans bin
 	$(RM) $(OBJ)/* || echo Rien à supprimer dans obj
 	$(RM) $(nameArchive) || echo Rien a supprimer dans save
-
-dox:
-	mkdir $(DOC) || echo test
-	doxygen Doxyfile
