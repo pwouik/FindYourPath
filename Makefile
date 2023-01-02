@@ -1,19 +1,61 @@
-HEAD = $(wildcard src/*.h)
-SRC = $(wildcard src/*.c)
-TEMP = $(SRC:.c=.o)
-OBJ = $(addprefix build/,$(notdir $(TEMP)))
+# commande pour compiler
+CC=gcc
+CP=cp
+CFLAGS=-Wall
+RM=rm -r
 
-all: FindYourPath
+#nom des dossiers
+SRC=src
+OBJ=build
+DATA=data
+DOC=doc
+SAVE=save
 
-FindYourPath: $(OBJ)
-	gcc $^ -o $@
+#arguments pour trouver les éléments dans les dossiers
+SRCS=$(wildcard $(SRC)/*.c)
+HEADS=$(wildcard $(SRC)/*.h)
+OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
 
-$(OBJ): $(SRC) $(HEAD)
-	mkdir -p build
-	gcc -c $< -o $@
+RESTORESRC=$(wildcard $(SAVE)/*.c)
+RESTOREHEAD=$(wildcard $(SAVE)/*.h)
+
+#dossier pour l'executable
+BINDIR=bin
+BIN=$(BINDIR)/main
+
+#varilable pour l'archivage
+nameArchive=tourrenc-lecerf_alexis
+
+#programme du make
+all:$(BIN)
+
+$(BIN): $(OBJS)
+	mkdir -p save_finished save_load
+	$(CC) $(CFLAGS) $(OBJS) -o $@ -lm
+
+$(OBJ)/%.o: $(SRC)/%.c
+	$(CC) $(CFLAGS) -c $< -o $@ -lm
+
+.PHONY: clean save restore give dox math
+
+save:
+	@$(CP) $(SRCS) $(HEADS) $(SAVE)
+	@echo Fichiers sauvegarde.
+
+restore:
+	@$(CP) $(RESTORESRC) $(RESTOREHEAD) $(SRC)
+	@echo Sauvegarde restaure.
+
+give:
+	@mkdir $(nameArchive) $(nameArchive)/$(SRC) $(nameArchive)/$(SAVE) $(nameArchive)/$(BINDIR) $(nameArchive)/$(OBJ) $(nameArchive)/$(DATA) || echo Fichier deja existant.
+	@$(CP) $(RESTORESRC) $(RESTOREHEAD) $(nameArchive)/$(SRC) || echo Rien a copier.
+	@$(CP) Makefile $(nameArchive)/
 
 clean:
-	rm -f FindYourPath build/*
+	$(RM) $(BINDIR)/* || echo Rien à supprimer dans bin
+	$(RM) $(OBJ)/* || echo Rien à supprimer dans obj
+	$(RM) $(nameArchive) || echo Rien a supprimer dans save
 
-run: FindYourPath
-	./FindYourPath
+dox:
+	mkdir $(DOC) || echo test
+	doxygen Doxyfile
